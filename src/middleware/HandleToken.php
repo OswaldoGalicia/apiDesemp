@@ -21,9 +21,15 @@ class HandleToken {
             $userId = $decoded -> user;
             $role = $decoded -> role;
             $area = $decoded -> area;
-            return [$userId, $role, $area];
+            return [
+                "user" => [
+                    "user" => $userId, 
+                    "role" => $role,
+                    "area" => $area
+                ]    
+            ];
         } catch (Exception $e) {
-            ResponseMethods::printError(404);
+            throw new Exception("No se encontró la sesión.",401);
         }
     }
 
@@ -39,7 +45,7 @@ class HandleToken {
                 ]);
                 return ['OK'];
         } catch (Exception $e){
-            return ['error' => 'Error (2)'];
+            throw new Exception("No se encontró la sesión", 404);
         }
     }
 }

@@ -22,6 +22,13 @@ class ResponseMethods{
     }
 
     public static function printError($httpCode = 500 , $message = ''){
+        if(!is_numeric($httpCode)){
+            $httpCode = 500;
+        }
+        if($httpCode < 100 || $httpCode > 599){
+            $httpCode = 500;
+        }
+        echo $httpCode;
         http_response_code($httpCode);
 
         if(isset($message) && trim(strlen($message)) > 0){

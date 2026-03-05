@@ -16,11 +16,12 @@ class MeController {
 
     public function getMeData(){
         try{
-            $jwt = $_COOKIE['session'] ?? null;
+            if(empty($_COOKIE['session'])){throw new Exception("No se encontró la sesión.", 404);}
+            $jwt = $_COOKIE['session'];
             $handdleMe = HandleToken::handleSessionToken($jwt);
-            ResponseMethods::printJSON("OK", $handdleMe);
+            return ResponseMethods::printJSON("OK", $handdleMe);
         }catch(Exception $e){
-            ResponseMethods::printError(500);
+            return ResponseMethods::printError($e -> getCode(), $e -> getMessage());
         }
     }
 }

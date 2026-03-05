@@ -12,6 +12,7 @@ class LoginService{
         return self::$instance;
     }
 
+    //Aqui es donde se elige a donde ir con los datos que manda en controller
 
     public function loginService($username, $pwd){
         $loginModel = new LoginModel($username, $pwd);

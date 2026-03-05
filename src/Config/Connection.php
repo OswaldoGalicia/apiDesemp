@@ -24,9 +24,9 @@ class Connection{
         public function connect(){
             try{
                 $conn = new PDO($this -> dbc, $this -> user, $this -> pwd, $this -> opt);
-                return $conn;
-            } catch (PDOException $e) {
-                ResponseMethods::printError(500, "Connection");
+            }catch(PDOException $e){
+                throw new Exception("Error en la conexion con el servidor. (80)", 500);
             }
+            return $conn;
         }
 }

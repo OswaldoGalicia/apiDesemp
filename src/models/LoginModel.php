@@ -11,13 +11,11 @@ class LoginModel implements JsonSerializable{
     private $pwd;
 
     public function __construct($user = '', $pwd = ''){
-        try{
-            $this -> conn = (new Connection()) -> connect(); 
-        } catch(PDOException $e){
-            return ResponseMethods::printError(500);
-        }
-        if($user == ''){ResponseMethods::printError(401);}
-        if($pwd == ''){ResponseMethods::printError(401);}    
+        
+        $this -> conn = (new Connection()) -> connect(); 
+        if(!$this -> conn){ throw new Exception("Error al conectar con el servidor.", 500);}
+        if($user == ''){throw new Exception("Usuario no encontrado.", 401);}
+        if($pwd == ''){throw new Exception("Contraseña incorrecta.",401);}    
         $this -> user = $user;
         $this -> pwd = $pwd;
     }
@@ -36,26 +34,23 @@ class LoginModel implements JsonSerializable{
                 INNER JOIN user_profile p
                 ON u.id = p.userId
                 WHERE username = :user";
-        try{
-            $stmt = $this -> conn -> prepare($sql);
-            $stmt -> execute(['user' => $this -> user]);
-            $result = $stmt -> fetch();
-            if(!$result){return ResponseMethods::printError(401, "Credenciales inválidas");}
-            if(!password_verify($this -> pwd, $result['pwd'])){return ResponseMethods::printError(401, "Credenciales inválidas. (1)");}
+        
+        $stmt = $this -> conn -> prepare($sql);
+        $stmt -> execute(['user' => $this -> user]);
+        $result = $stmt -> fetch();
+        if(!$result){throw new Exception("Credenciales inválidas", 401);}
+        if(!password_verify($this -> pwd, $result['pwd'])){throw new Exception("Credenciales inválidas.", 401);}
 
-            $createToken = CreateToken::getInstance();
-            $createToken -> createToken($result);
+        $createToken = CreateToken::getInstance();
+        $createToken -> createToken($result);
 
-            return [
-                "user" => [
-                    "user" => $result['id'],
-                    "role" => $result['role'],
-                    "area" => $result['area']
-                ]
-            ];
-        } catch (PDOException $e) {
-            ResponseMethods::printError(500, $e);
-        }
+        return [
+            "user" => [
+                "user" => $result['id'],
+                "role" => $result['role'],
+                "area" => $result['area']
+            ]
+        ];
     }
 
     

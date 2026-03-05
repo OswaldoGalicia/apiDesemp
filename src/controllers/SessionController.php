@@ -18,36 +18,32 @@ class SessionController {
     public function loginController(){
         try{
             $data = json_decode(file_get_contents("php://input"), true);
-            if($data == null){return ResponseMethods::printError(400);}
+            if($data == null){throw new Exception("Datos incorrectos", 400);}
 
             if(!isset($data['user']) || !isset($data['pwd'])){
-                return ResponseMethods::printError(400);
+                throw new Exception("Datos incorrectos", 400);
             }
             $user = $data['user'];
             $pwd = $data['pwd'];
             $loginService = LoginService::getInstance();
             $res = $loginService -> loginService($user, $pwd);
-            ResponseMethods::printJSON("OK", $res);
+            return ResponseMethods::printJSON("OK", $res);
             
         }catch(Exception $e){
-
+            return ResponseMethods::printError($e -> getCode(), $e -> getMessage());
         }
     }
 
     public function logoutController(){
         try{
-
-            if(isset($_COOKIE['session'])){
-                $response = HandleToken::unsetSessionToken();
-                if(isset($response['error'])){
-                    ResponseMethods::printError(500, $response['error']);
-                }
-                ResponseMethods::printJSON("OK");
-            }else{
-                ResponseMethods::printError(400, "Session not set");
+            if(!isset($_COOKIE['session'])){
+                throw new Exception("Sesión no encontrada", 404);
             }
+            HandleToken::unsetSessionToken();
+            
+            ResponseMethods::printJSON("OK");
         }catch (Exception $e) {
-            ResponseMethods::printError(500);
+            return ResponseMethods::printError($e -> getCode(), $e -> getMessage());
         }
     }
 }
