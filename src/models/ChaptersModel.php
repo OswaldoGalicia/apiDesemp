@@ -57,9 +57,9 @@ class ChaptersModel implements JsonSerializable{
                 FROM chap_book ch 
                 INNER JOIN user_profile pr
                 ON ch.userId = pr.userId
-                WHERE pr.area = 'ISC'";
+                WHERE pr.area = :area";
         $stmt = $this -> conn -> prepare($sql);
-        $stmt -> execute();
+        $stmt -> execute(['area' => $this -> userArea]);
         $result = $stmt -> fetchAll();
         if(empty($result)){throw new Exception("No se encontraron capitulos de libros.", 404);}
         return $result;
